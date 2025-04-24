@@ -10,12 +10,12 @@ def parse_reqs(filename):
 
 
 setuptools.setup(
-    name='dreamer',
-    version='3.3.1',
-    author='Danijar Hafner',
-    author_email='mail@danijar.com',
-    description='Mastering Diverse Domains through World Models',
-    url='http://github.com/danijar/dreamerv3',
+    name='dreamer-grpo',
+    version='0.0.1',
+    author='chenxingqiang',
+    author_email='joy6677@qq.com',
+    description='Mastering Diverse Domains through World Models with GRPO',
+    url='http://github.com/chenxingqiang/dreamer-grpo',
     long_description=pathlib.Path('README.md').read_text(),
     long_description_content_type='text/markdown',
     packages=setuptools.find_packages(),

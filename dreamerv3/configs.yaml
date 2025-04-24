@@ -19,6 +19,27 @@ defaults:
   ipv6: False
   errfile: False
 
+  # GRPO算法相关配置
+  grpo:
+    beta: 0.1  # KL散度惩罚系数
+    epsilon: 0.2  # 裁剪参数下限
+    epsilon_high: 0.2  # 裁剪参数上限
+    num_generations: 4  # 每个提示生成的样本数量
+    num_iterations: 1  # 每批次的优化迭代次数
+    scale_rewards: True  # 是否按标准差缩放奖励
+    loss_type: "grpo"  # 损失函数类型: "grpo", "bnpo", 或 "dr_grpo"
+    use_peft: False  # 是否使用Parameter-Efficient Fine-Tuning
+    disable_dropout: True  # 是否在训练中禁用dropout
+    # 生成参数
+    temperature: 1.0  # 采样温度
+    top_p: 1.0  # Top-p (nucleus) 采样参数
+    top_k: 'null'  # Top-k 采样参数
+    min_p: 'null'  # Min-p 采样参数
+    repetition_penalty: 1.0  # 重复惩罚系数
+    max_prompt_length: 'null'  # 最大提示长度
+    max_completion_length: 128  # 最大补全长度
+    mask_truncated_completions: True  # 是否掩蔽被截断的补全
+
   logger:
     outputs: [jsonl, scope]
     filter: 'score|length|fps|ratio|train/loss/|train/rand/'
@@ -151,6 +172,35 @@ size400m: &size400m
   .*\.rssm: {deter: 12288, hidden: 1536, classes: 96}
   .*\.depth: 96
   .*\.units: 1536
+
+# GRPO特定配置
+grpo_config: &grpo_config
+  script: train_grpo
+  run: {train_ratio: 32}
+  grpo:
+    beta: 0.1
+    epsilon: 0.2
+    epsilon_high: 0.2
+    num_generations: 4
+    num_iterations: 1
+    scale_rewards: True
+    loss_type: "grpo"
+    top_k: 'null'
+    min_p: 'null'
+    max_prompt_length: 'null'
+
+# 不同GRPO变体
+grpo_kl:
+  <<: *grpo_config
+  grpo: {beta: 0.5}  # 较高的KL惩罚系数
+
+grpo_bnpo:
+  <<: *grpo_config
+  grpo: {loss_type: "bnpo"}  # 使用BNPO损失函数
+
+grpo_multi:
+  <<: *grpo_config
+  grpo: {num_iterations: 3}  # 多步迭代
 
 minecraft:
   task: minecraft_diamond

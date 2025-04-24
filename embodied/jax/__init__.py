@@ -1,4 +1,9 @@
-from .agent import Agent
+from . import agent
+from . import internal
+from . import transform
+
+from .agent import Agent, init
+from .grpo_loss import compute_grpo_loss, compute_advantages
 
 from .heads import DictHead
 from .heads import Head

@@ -14,7 +14,7 @@ jaxlib==0.4.26
 jaxtyping
 ninjax>=3.5.1
 numpy<2  # DMLab: <2, MineRLv1.0: <1.24
-# nvidia-cuda-nvcc-cu12<=12.2  # Only needed for NVIDIA GPU platforms
+nvidia-cuda-nvcc-cu12<=12.2  # Only needed for NVIDIA GPU platforms
 optax
 portal>=3.5.0
 scope>=0.4.4

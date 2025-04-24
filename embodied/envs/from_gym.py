@@ -1,6 +1,6 @@
 import functools
 
-import elements
+import elements # type: ignore
 import embodied
 import gym
 import numpy as np

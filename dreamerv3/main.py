@@ -52,6 +52,25 @@ def main(argv=None):
       ipv6=config.ipv6,
   )
 
+  # Set up default GRPO parameters
+  grpo_params = {
+      'beta': 0.0,
+      'epsilon': 0.2,
+      'epsilon_high': None,
+      'num_generations': 4, 
+      'num_iterations': 1,
+      'scale_rewards': True,
+      'loss_type': 'grpo',
+      'use_peft': False,
+      'disable_dropout': True,
+  }
+  
+  # Override defaults with any specified in config
+  for key in grpo_params:
+      full_key = f'grpo.{key}'
+      if full_key in config:
+          grpo_params[key] = config[full_key]
+  
   args = elements.Config(
       **config.run,
       replica=config.replica,
@@ -63,10 +82,20 @@ def main(argv=None):
       consec_train=config.consec_train,
       consec_report=config.consec_report,
       replay_context=config.replay_context,
+      **grpo_params
   )
 
   if config.script == 'train':
     embodied.run.train(
+        bind(make_agent, config),
+        bind(make_replay, config, 'replay'),
+        bind(make_env, config),
+        bind(make_stream, config),
+        bind(make_logger, config),
+        args)
+
+  elif config.script == 'train_grpo':
+    embodied.run.grpo_train(
         bind(make_agent, config),
         bind(make_replay, config, 'replay'),
         bind(make_env, config),

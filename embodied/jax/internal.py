@@ -13,23 +13,24 @@ from . import nets
 
 
 def setup(
-    platform=None,
-    compute_dtype=jnp.bfloat16,
-    debug=False,
-    jit=True,
-    prealloc=False,
-    mock_devices=0,
-    transfer_guard=True,
-    deterministic=True,
-    autotune=1,
-    gpuflags=True,
-    tpuflags=False,
-    xladump=None,
-    debug_nans=False,
-    process_id=-1,
-    num_processes=1,
-    coordinator_address=None,
-    compilation_cache=True,
+      platform=None,
+      compute_dtype=jnp.bfloat16,
+      debug=False,
+      jit=True,
+      prealloc=False,
+      mock_devices=0,
+      transfer_guard=True,
+      deterministic=True,
+      autotune=1,
+      gpuflags=True,
+      tpuflags=False,
+      metalflags=True,
+      xladump=None,
+      debug_nans=False,
+      process_id=-1,
+      num_processes=1,
+      coordinator_address=None,
+      compilation_cache=True,
 ):
   platform and jax.config.update('jax_platforms', platform)
   jax.config.update('jax_disable_most_optimizations', debug)
@@ -51,6 +52,26 @@ def setup(
     elements.Path(xladump).mkdir()
     xlaflags.append(f'--xla_dump_to={xladump}')
     xlaflags.append('--xla_dump_hlo_as_long_text')
+  
+  # Apple Metal specific setup
+  if metalflags and platform == 'metal':
+    print('Configuring Metal backend flags')
+    # Enable PJRT compatibility required for Metal
+    os.environ['ENABLE_PJRT_COMPATIBILITY'] = '1'
+    
+    # Set Metal-specific XLA flags
+    xlaflags += [
+        '--xla_metal_enable_profiling=false',  # Disable profiling by default to prevent crashes
+        '--xla_gpu_enable_latency_hiding_scheduler=true',
+        '--xla_metal_enable_async=true',
+        '--xla_gpu_enable_while_loop_double_buffering=true',
+    ]
+    
+    # Set memory limits for Metal - prevents OOM errors
+    # Adjust based on device capability (values in MB)
+    os.environ['XLA_PYTHON_CLIENT_MEM_FRACTION'] = '0.8'
+    os.environ['XLA_PYTHON_CLIENT_ALLOCATOR'] = 'platform'
+  
   if gpuflags and platform == 'gpu':
     # xla_flags.append('--xla_gpu_enable_latency_hiding_scheduler=true')
     # xla_flags.append('--xla_gpu_enable_async_all_gather=true')
