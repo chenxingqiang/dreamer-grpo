@@ -53,6 +53,14 @@ Thumbs.db
 # Ignore logs content but keep the directory
 logs/*
 !logs/.gitkeep
+!logs/dreamer/
+logs/dreamer/*
+!logs/dreamer/*/config.yaml
+# Specifically exclude checkpoint and replay files which are too large
+logs/dreamer/*/ckpt/
+logs/dreamer/*/replay/
+logs/dreamer/*/scope/
+
 # Weight & Biases
 wandb/
 # Tensorboard
